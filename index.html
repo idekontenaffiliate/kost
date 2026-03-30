@@ -1,0 +1,89 @@
+function myFunction() {
+  
+}
+
+// Konfigurasi ID
+const SHEET_ID = '1PvZb_gI4JCf5y4sDyLGG3NyzFcMVx5sVgPWVxUj7XPc'; 
+const FOLDER_ID = '1aXaeWibXFu_DkioVBTXRJ5wV6inRZxOx'; // Folder untuk menyimpan foto transfer
+
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('Aplikasi Kosanku')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// 1. Mengambil data Kamar
+function getKamarTersedia() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheetKamar = ss.getSheetByName('Kamar');
+  const sheetFoto = ss.getSheetByName('Foto');
+  
+  const dataKamar = sheetKamar.getDataRange().getValues();
+  const dataFoto = sheetFoto.getDataRange().getValues();
+  let kamarTersedia = [];
+  
+  for (let i = 1; i < dataKamar.length; i++) {
+    if (dataKamar[i][4] === 'Tersedia') { 
+      let idKamar = dataKamar[i][0];
+      let urlFoto = 'https://via.placeholder.com/300x200?text=Tidak+Ada+Foto'; // Default
+      
+      for (let j = 1; j < dataFoto.length; j++) {
+        if (dataFoto[j][0] === idKamar) {
+          urlFoto = dataFoto[j][1];
+          break;
+        }
+      }
+      
+      kamarTersedia.push({
+        id: idKamar,
+        nama: dataKamar[i][1],
+        fasilitas: dataKamar[i][2],
+        harga: dataKamar[i][3],
+        foto: urlFoto
+      });
+    }
+  }
+  return kamarTersedia;
+}
+
+// 2. Mengecek Biaya Listrik
+function cekListrik(idKamar) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheetKamar = ss.getSheetByName('Kamar');
+  const dataKamar = sheetKamar.getDataRange().getValues();
+  
+  for (let i = 1; i < dataKamar.length; i++) {
+    if (dataKamar[i][0].toString().toUpperCase() === idKamar.toUpperCase()) {
+      return dataKamar[i][5]; 
+    }
+  }
+  return "Tidak ditemukan";
+}
+
+// 3. Menerima File Upload dan Menyimpan Data
+function prosesPembayaran(obj) {
+  try {
+    // Decode base64 gambar
+    let dataImage = obj.base64.split(',')[1];
+    let blob = Utilities.newBlob(Utilities.base64Decode(dataImage), obj.tipe, obj.namaFile);
+    
+    // Simpan ke Google Drive
+    let folder = DriveApp.getFolderById(FOLDER_ID);
+    let file = folder.createFile(blob);
+    let fileUrl = file.getUrl();
+    
+    // Simpan ke Google Sheets
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheetBeli = ss.getSheetByName('Pembayaran');
+    const waktu = new Date();
+    
+    sheetBeli.appendRow([waktu, obj.nama, obj.idKamar, obj.bulan, fileUrl, 'Menunggu Validasi']);
+    
+    return "Berhasil! Bukti transfer tersimpan.";
+  } catch (error) {
+    return "Gagal: " + error.toString();
+  }
+}
+
+

@@ -187,7 +187,7 @@
 
         // Fungsi mengubah link Google Drive biasa menjadi Direct Link Gambar
         function getDirectImageUrl(url) {
-            if (!url) return 'https://via.placeholder.com/500x200?text=Foto+Kosong';
+            if (!url) return 'https://drive.google.com/file/d/1vP6_bPhi1sgvv1H_FWG5szcdLz2KvOIz/view?usp=sharing';
             
             const driveRegex1 = /drive\.google\.com\/file\/d\/([^\/]+)/;
             const match1 = url.match(driveRegex1);

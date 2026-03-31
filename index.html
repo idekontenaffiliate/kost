@@ -16,6 +16,13 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 pb-20">
 
+    <!-- MODAL FULLSCREEN IMAGE VIEW (LIGHTBOX) -->
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden bg-black/95 flex flex-col items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-white text-4xl w-12 h-12 flex items-center justify-center bg-black/50 rounded-full hover:bg-gray-800 z-50">&times;</button>
+        <img id="modal-img" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300">
+        <p id="modal-caption" class="text-white mt-4 text-center text-sm font-medium"></p>
+    </div>
+
     <!-- Efek Pull to Refresh -->
     <div id="pull-to-refresh" class="fixed top-0 left-0 w-full h-16 flex items-center justify-center bg-gray-200 z-40 transition-transform transform -translate-y-full shadow-inner">
         <div class="flex items-center space-x-2 text-emerald-600">
@@ -36,18 +43,13 @@
         
         <!-- BANNER & FASILITAS -->
         <section class="p-4 bg-emerald-50">
-            <div class="bg-emerald-600 rounded-xl p-4 text-white shadow relative overflow-hidden">
-                <div class="relative z-10">
-                    <span class="bg-red-500 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block">PROMO</span>
-                    <h2 class="font-bold text-lg">Kos Nyaman & Aman!</h2>
-                    <p class="text-sm text-emerald-100 mt-1">Pilih kamar idaman Anda, dan rasakan kenyamanannya.</p>
-                </div>
-                <i class="fa-solid fa-tags absolute -right-4 -bottom-4 text-6xl text-emerald-500 opacity-50"></i>
+            <!-- Tempat Promo Dinamis -->
+            <div id="promo-container" class="hidden mb-4">
+                <!-- Konten Promo Akan Dimasukkan Lewat JavaScript -->
             </div>
             
-            <div class="mt-4">
-                <h3 class="font-semibold text-gray-700 text-sm mb-2">Fasilitas Bersama:</h3>
-                <!-- Kontainer Fasilitas Dinamis -->
+            <div>
+                <h3 class="font-semibold text-gray-700 text-sm mb-2">Fasilitas Bersama (Klik untuk perbesar):</h3>
                 <div id="container-fasilitas" class="flex space-x-3 overflow-x-auto no-scrollbar py-2">
                     <p class="text-xs text-gray-400 italic">Memuat fasilitas...</p>
                 </div>
@@ -71,7 +73,7 @@
                 
                 <div id="loading-kamar" class="hidden text-center py-8 text-gray-400">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
-                    <p>Memuat data dari Google Sheets...</p>
+                    <p>Memuat data dari server...</p>
                 </div>
 
                 <div id="list-kamar" class="space-y-6">
@@ -108,48 +110,28 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Upload Bukti Transfer</label>
-                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer" onclick="document.getElementById('input-foto').click()">
-                                <div class="space-y-1 text-center">
-                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400"></i>
-                                    <div class="flex text-sm text-gray-600 justify-center">
-                                        <span class="relative cursor-pointer rounded-md font-medium text-emerald-600 hover:text-emerald-500">
-                                            <span>Pilih Foto dari Galeri</span>
-                                            <input id="input-foto" type="file" accept="image/*" class="sr-only" onchange="previewFile()">
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="preview-container" class="hidden mt-3 relative">
-                                <img id="image-preview" src="" class="h-32 rounded-lg object-cover border">
-                                <button type="button" onclick="hapusFoto()" class="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow">X</button>
-                            </div>
-                        </div>
 
                         <button type="submit" id="btn-submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition shadow-md">
-                            Kirim Bukti Pembayaran
+                            Kirim Data Pembayaran
                         </button>
                         <p id="pesan-status" class="text-center text-sm font-medium mt-2 hidden"></p>
                     </form>
                 </div>
 
-                <!-- Kontainer Sukses WA (Awalnya Tersembunyi) -->
                 <div id="wa-container" class="hidden text-center py-6">
                     <div class="text-emerald-500 mb-4">
                         <i class="fa-regular fa-circle-check text-6xl"></i>
                     </div>
                     <h3 class="font-bold text-lg mb-2">Satu Langkah Lagi!</h3>
-                    <p class="text-sm text-gray-600 mb-6">Bukti sudah tersimpan di sistem. Kirim notifikasi ke WhatsApp pemilik kos agar segera divalidasi (Approved).</p>
+                    <p class="text-sm text-gray-600 mb-6">Silakan lanjut ke WhatsApp untuk melampirkan foto bukti transfer Anda secara langsung ke Pemilik.</p>
                     <a href="#" id="wa-link" target="_blank" class="block w-full bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow-md">
-                        <i class="fa-brands fa-whatsapp mr-2"></i> Konfirmasi ke WhatsApp
+                        <i class="fa-brands fa-whatsapp mr-2"></i> Kirim Bukti via WhatsApp
                     </a>
                     <button onclick="resetFormBayar()" class="mt-4 text-gray-500 text-sm hover:underline">Tutup & Isi Form Lain</button>
                 </div>
             </div>
 
-            <!-- TAB 3: INFO PENGHUNI (Tagihan & Status Approval) -->
+            <!-- TAB 3: INFO PENGHUNI -->
             <div id="tab-info" class="hidden text-center py-6">
                 <i class="fa-solid fa-user-shield text-5xl text-emerald-500 mb-4 drop-shadow"></i>
                 <h2 class="font-bold text-gray-800 text-xl mb-2">Info Tagihan & Status Sewa</h2>
@@ -163,19 +145,15 @@
                 </div>
                 
                 <div id="hasil-info-container" class="mt-8 hidden space-y-4">
-                    <!-- Kartu Tagihan -->
                     <div class="p-5 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-left relative overflow-hidden">
                         <i class="fa-solid fa-bolt absolute -right-2 -bottom-2 text-6xl text-yellow-200 opacity-50"></i>
                         <p class="text-sm text-yellow-800 font-semibold mb-1">Tagihan Listrik Berjalan</p>
                         <p id="nominal-listrik" class="text-2xl font-bold text-yellow-600">Rp 0</p>
                     </div>
 
-                    <!-- Kartu Status Approval -->
                     <div class="p-5 bg-white border rounded-xl shadow-sm text-left">
                         <p class="text-sm text-gray-500 font-semibold mb-2">Status Pembayaran Terakhir:</p>
-                        <div id="status-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium">
-                            <!-- Badge Status Akan Diisi Oleh JS -->
-                        </div>
+                        <div id="status-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium"></div>
                     </div>
                 </div>
             </div>
@@ -184,14 +162,47 @@
 
     <script>
         // =======================================================
-        // 1. KONFIGURASI PENTING SEBELUM UPLOAD KE VERCEL
+        // KONFIGURASI PENTING
         // =======================================================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvr9azRWP7iiMlUEIxnwizHSORyUgmyv5CidP7U3IEhF0KZflc454e96xKPy7uA-fR/exec'; 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeGjE3vENppUp82ZFPix_WKPmnPDPR-2gWfOrQaXah4T3-x20k5K8ECwUJ0oPk98ff/exec'; 
         const NOMOR_WA_ADMIN = '6281234567890'; // Ganti dengan awalan 62 (contoh: 62812...)
+
+
+        // --- SISTEM MODAL LIGHTBOX / FULLSCREEN ---
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalCaption = document.getElementById('modal-caption');
+
+        function openModal(imgSrc, captionText = "") {
+            modalImg.src = imgSrc;
+            modalCaption.innerText = captionText;
+            
+            modal.classList.remove('hidden');
+            // Sedikit delay agar efek transisi CSS muncul
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalImg.classList.remove('scale-95');
+                modalImg.classList.add('scale-100');
+            }, 10);
+            
+            document.body.style.overflow = 'hidden'; // Mengunci layar agar tidak bisa discroll kebawah
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalImg.classList.remove('scale-100');
+            modalImg.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto'; // Buka kembali kunci scroll
+                modalImg.src = "";
+            }, 300); // Sesuai dengan durasi animasi CSS (300ms)
+        }
 
         // Fungsi mengubah link Google Drive menjadi Direct Link
         function getDirectImageUrl(url) {
-            if (!url) return 'https://drive.google.com/file/d/1vP6_bPhi1sgvv1H_FWG5szcdLz2KvOIz/view?usp=sharing';
+            if (!url) return '';
             const driveRegex1 = /drive\.google\.com\/file\/d\/([^\/]+)/;
             const match1 = url.match(driveRegex1);
             if (match1 && match1[1]) return `https://drive.google.com/uc?export=view&id=${match1[1]}`;
@@ -202,6 +213,7 @@
             return url; 
         }
 
+        // Navigasi
         function switchTab(tabId) {
             ['tab-kamar', 'tab-bayar', 'tab-info'].forEach(id => document.getElementById(id).classList.add('hidden'));
             ['btn-kamar', 'btn-bayar', 'btn-info'].forEach(id => document.getElementById(id).classList.remove('tab-active'));
@@ -215,31 +227,8 @@
             window.scrollTo(0, 0);
         }
 
-        let base64String = "", fileType = "", fileName = "";
-        function previewFile() {
-            const file = document.getElementById('input-foto').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('image-preview').src = e.target.result;
-                    document.getElementById('preview-container').classList.remove('hidden');
-                    base64String = e.target.result;
-                    fileType = file.type;
-                    fileName = file.name;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function hapusFoto() {
-            document.getElementById('input-foto').value = "";
-            document.getElementById('preview-container').classList.add('hidden');
-            base64String = "";
-        }
-
         function resetFormBayar() {
             document.getElementById('form-bayar').reset();
-            hapusFoto();
             document.getElementById('form-container').classList.remove('hidden');
             document.getElementById('wa-container').classList.add('hidden');
             document.getElementById('pesan-status').classList.add('hidden');
@@ -250,47 +239,44 @@
         // ==========================================
         async function submitPembayaran(e) {
             e.preventDefault();
-            if (!base64String) return alert("Harap unggah foto bukti transfer!");
+            if (APPS_SCRIPT_URL === 'MASUKKAN_URL_WEB_APP_APPS_SCRIPT_ANDA_DI_SINI') {
+                return alert("Harap masukkan URL Web App Apps Script Anda di kode HTML!");
+            }
 
             const btn = document.getElementById('btn-submit');
             const pesan = document.getElementById('pesan-status');
             
-            btn.innerText = "Mengunggah Data ke Server...";
+            btn.innerText = "Mengirim Data...";
             btn.classList.add('opacity-70', 'cursor-not-allowed');
-            pesan.classList.remove('hidden');
-            pesan.className = "text-center text-sm font-medium mt-2 text-blue-500";
-            pesan.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Proses ini membutuhkan beberapa detik...";
 
             const namaPenyewa = document.getElementById('input-nama').value;
             const idKamar = document.getElementById('input-kamar').value;
             const bulan = document.getElementById('input-bulan').value;
 
-            const payload = {
-                nama: namaPenyewa, idKamar: idKamar, bulan: bulan,
-                base64: base64String, tipe: fileType, namaFile: fileName
-            };
+            // Tidak mengirim foto lagi lewat API, langsung teks saja.
+            const payload = { nama: namaPenyewa, idKamar: idKamar, bulan: bulan, base64: "", tipe: "", namaFile: "" };
 
             try {
                 let response = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload), redirect: "follow" });
                 let result = await response.json();
 
                 if (result.status === "success") {
-                    // Sembunyikan form, tampilkan tombol WA
                     document.getElementById('form-container').classList.add('hidden');
                     document.getElementById('wa-container').classList.remove('hidden');
 
-                    // Bangun Pesan WhatsApp
-                    const pesanWaText = `Halo Pemilik Kos, saya ${namaPenyewa} telah mentransfer pembayaran sewa untuk Kamar ${idKamar} (Bulan: ${bulan}).%0A%0ABerikut adalah link bukti transfer saya: ${result.fileUrl}%0A%0AMohon bantuannya untuk mengecek dan mengubah status saya menjadi Approved. Terima kasih!`;
+                    const pesanWaText = `Halo Pemilik Kos, saya *${namaPenyewa}* telah mentransfer pembayaran sewa untuk Kamar *${idKamar}* (Bulan: ${bulan}).%0A%0ABerikut saya lampirkan foto bukti transfernya. Mohon divalidasi (Approved). Terima kasih!`;
                     document.getElementById('wa-link').href = `https://wa.me/${NOMOR_WA_ADMIN}?text=${pesanWaText}`;
                 } else {
+                    pesan.classList.remove('hidden');
                     pesan.className = "text-center text-sm font-medium mt-2 text-red-600";
                     pesan.innerHTML = `<i class='fa-solid fa-triangle-exclamation'></i> Gagal: ${result.pesan}`;
                 }
             } catch (error) {
+                pesan.classList.remove('hidden');
                 pesan.className = "text-center text-sm font-medium mt-2 text-red-600";
                 pesan.innerHTML = `<i class='fa-solid fa-triangle-exclamation'></i> Gagal terhubung ke server.`;
             } finally {
-                btn.innerText = "Kirim Bukti Pembayaran";
+                btn.innerText = "Kirim Data Pembayaran";
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
@@ -312,14 +298,12 @@
                 
                 document.getElementById('hasil-info-container').classList.remove('hidden');
                 
-                // Set Listrik
                 if (!isNaN(result.tagihan) && result.tagihan !== "") {
                     document.getElementById('nominal-listrik').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(result.tagihan);
                 } else {
                     document.getElementById('nominal-listrik').innerText = result.tagihan;
                 }
 
-                // Set Status Approval (Dua Sisi)
                 const badge = document.getElementById('status-badge');
                 if (result.status.toLowerCase() === 'approved') {
                     badge.className = "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200";
@@ -331,7 +315,6 @@
                     badge.className = "inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200";
                     badge.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> ${result.status}`;
                 }
-
             } catch (error) {
                 alert("Gagal mengambil data dari server.");
             } finally {
@@ -340,11 +323,12 @@
         }
 
         // ==========================================
-        // MUAT DATA KAMAR & FASILITAS UMUM
+        // MUAT DATA (KAMAR, FASILITAS, & PROMO)
         // ==========================================
         async function muatData() {
             const listContainer = document.getElementById('list-kamar');
             const fasContainer = document.getElementById('container-fasilitas');
+            const promoContainer = document.getElementById('promo-container');
             const loading = document.getElementById('loading-kamar');
             
             listContainer.innerHTML = ''; 
@@ -354,48 +338,72 @@
                 let response = await fetch(`${APPS_SCRIPT_URL}?action=getAppData`, { redirect: "follow" });
                 let appData = await response.json();
                 
-                // 1. Render Fasilitas Umum
+                // 1. Render Promo Dinamis
+                if (appData.promo) {
+                    let promoImg = getDirectImageUrl(appData.promo.foto);
+                    let bgStyle = promoImg ? `background-image: linear-gradient(to right, rgba(5, 150, 105, 0.95), rgba(5, 150, 105, 0.7)), url('${promoImg}'); background-size: cover; background-position: center;` : '';
+                    
+                    promoContainer.innerHTML = `
+                        <div class="rounded-xl p-4 text-white shadow relative overflow-hidden cursor-pointer hover:shadow-lg transition" style="${bgStyle}; background-color: #059669;" ${promoImg ? `onclick="openModal('${promoImg}', '${appData.promo.judul}')"` : ''}>
+                            <div class="relative z-10">
+                                <span class="bg-red-500 text-xs font-bold px-2 py-1 rounded-full mb-2 inline-block shadow">PROMO AKTIF</span>
+                                <h2 class="font-bold text-lg leading-tight mb-1">${appData.promo.judul}</h2>
+                                <p class="text-xs text-emerald-50 mt-1 bg-black/20 p-2 rounded backdrop-blur-sm">${appData.promo.deskripsi}</p>
+                            </div>
+                            <i class="fa-solid fa-bullhorn absolute -right-2 -bottom-2 text-6xl text-white opacity-20"></i>
+                        </div>
+                    `;
+                    promoContainer.classList.remove('hidden');
+                } else {
+                    promoContainer.classList.add('hidden');
+                }
+
+                // 2. Render Fasilitas Umum (Dengan klik Fullscreen)
                 if (appData.fasilitas && appData.fasilitas.length > 0) {
                     let fasHtml = '';
                     appData.fasilitas.forEach(fas => {
                         let fImg = getDirectImageUrl(fas.foto);
+                        let placeholder = 'https://via.placeholder.com/100?text=Foto';
                         fasHtml += `
-                        <div class="bg-white border rounded-lg overflow-hidden shadow-sm flex-shrink-0 w-24">
-                            <img src="${fImg}" class="w-full h-16 object-cover" onerror="this.src='https://via.placeholder.com/100?text=Foto'">
+                        <div class="bg-white border rounded-lg overflow-hidden shadow-sm flex-shrink-0 w-24 cursor-pointer hover:border-emerald-500 transition" onclick="openModal('${fImg || placeholder}', '${fas.nama}')">
+                            <img src="${fImg || placeholder}" onerror="this.src='${placeholder}'" class="w-full h-16 object-cover hover:scale-110 transition-transform duration-300">
                             <p class="text-[10px] text-center p-1.5 font-medium text-gray-700 truncate">${fas.nama}</p>
                         </div>`;
                     });
                     fasContainer.innerHTML = fasHtml;
                 } else {
-                    fasContainer.innerHTML = `<p class="text-xs text-gray-500 italic px-1">Fasilitas umum belum ditambahkan di Sheet.</p>`;
+                    fasContainer.innerHTML = `<p class="text-xs text-gray-500 italic px-1">Fasilitas umum belum tersedia.</p>`;
                 }
 
-                // 2. Render Kamar dengan Multi Gambar
+                // 3. Render Kamar dengan Multi Gambar & Fullscreen
                 if (appData.kamar.length === 0) {
                     listContainer.innerHTML = `<div class="text-center py-8 text-gray-500">Saat ini tidak ada kamar tersedia.</div>`;
                 } else {
                     let htmlList = '';
                     appData.kamar.forEach(k => {
                         let formatHarga = new Intl.NumberFormat('id-ID').format(k.harga);
-                        
-                        // Menyiapkan array gambar
                         let mainImage = getDirectImageUrl(k.foto[0]);
                         let thumbnailsHtml = '';
                         
                         if (k.foto.length > 1) {
                             k.foto.forEach(fotoLink => {
                                 let tImg = getDirectImageUrl(fotoLink);
-                                thumbnailsHtml += `<img src="${tImg}" onclick="document.getElementById('main-img-${k.id}').src='${tImg}'" class="h-14 w-20 object-cover rounded cursor-pointer border border-gray-200 hover:border-emerald-500 transition shadow-sm flex-shrink-0">`;
+                                thumbnailsHtml += `<img src="${tImg}" onclick="document.getElementById('main-img-${k.id}').src='${tImg}'" class="h-14 w-20 object-cover rounded cursor-pointer border-2 border-transparent hover:border-emerald-500 transition shadow-sm flex-shrink-0">`;
                             });
                             thumbnailsHtml = `<div class="flex overflow-x-auto space-x-2 p-2 bg-gray-50 no-scrollbar border-t">${thumbnailsHtml}</div>`;
                         }
 
                         htmlList += `
                         <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                            <!-- Main Image -->
-                            <img id="main-img-${k.id}" src="${mainImage}" onerror="this.src='https://drive.google.com/file/d/1vP6_bPhi1sgvv1H_FWG5szcdLz2KvOIz/view?usp=sharing'" class="w-full h-48 object-cover transition duration-300">
+                            <!-- Main Image (Bisa di klik untuk fullscreen) -->
+                            <div class="relative group cursor-pointer" onclick="openModal(document.getElementById('main-img-${k.id}').src, '${k.nama} (${k.id})')">
+                                <img id="main-img-${k.id}" src="${mainImage}" onerror="this.src='https://via.placeholder.com/500x200?text=Gagal+Muat+Foto'" class="w-full h-48 object-cover transition duration-300 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition duration-300 flex items-center justify-center">
+                                    <i class="fa-solid fa-expand text-white text-3xl opacity-0 group-hover:opacity-100 transition duration-300"></i>
+                                </div>
+                            </div>
                             
-                            <!-- Thumbnails (Jika ada lebih dari 1 gambar) -->
+                            <!-- Thumbnails -->
                             ${thumbnailsHtml}
 
                             <div class="p-4">
@@ -415,7 +423,7 @@
                     listContainer.innerHTML = htmlList;
                 }
             } catch (error) {
-                listContainer.innerHTML = `<div class="text-center py-8 text-red-500">Gagal memuat data dari server. Pastikan URL Apps Script benar.</div>`;
+                listContainer.innerHTML = `<div class="text-center py-8 text-red-500">Gagal memuat data. Pastikan URL Apps Script benar.</div>`;
             } finally {
                 loading.classList.add('hidden');
             }
